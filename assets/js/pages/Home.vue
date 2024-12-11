@@ -1,310 +1,198 @@
+<script>
+import './style.css';
+
+export default {
+    props: {
+        grafik: String,
+        title: String,
+        description: String,
+        deskripsi: String,
+        pokedex: Array,
+        chart_data: String,
+        chart_data_2: String,
+        currentPage: Number,
+        totalPages: Number,
+        association_rules: Array, // Semua aturan asosiasi
+    },
+    data() {
+        return {
+            searchItem: '', // Input pengguna
+            filteredRules: [], // Menyimpan aturan asosiasi yang difilter
+            currentPageRules: 1, // Halaman saat ini untuk asosiasi
+            rulesPerPage: 5, // Batas jumlah aturan per halaman
+        };
+    },
+    computed: {
+        // Aturan yang ditampilkan berdasarkan halaman saat ini
+        paginatedRules() {
+            const startIndex = (this.currentPageRules - 1) * this.rulesPerPage;
+            const endIndex = startIndex + this.rulesPerPage;
+            return this.filteredRules.slice(startIndex, endIndex);
+        },
+        // Total halaman berdasarkan jumlah aturan
+        totalPagesRules() {
+            return Math.ceil(this.filteredRules.length / this.rulesPerPage);
+        },
+    },
+    methods: {
+        // Menyaring asosiasi berdasarkan input pengguna
+        searchAssociation() {
+            if (this.searchItem.trim() !== '') {
+                this.filteredRules = this.association_rules.filter(rule =>
+                    rule.toLowerCase().includes(this.searchItem.toLowerCase())
+                );
+            } else {
+                this.filteredRules = [];
+            }
+            this.currentPageRules = 1; // Reset ke halaman pertama
+        },
+        // Navigasi ke halaman sebelumnya
+        prevPage() {
+            if (this.currentPageRules > 1) {
+                this.currentPageRules--;
+            }
+        },
+        // Navigasi ke halaman berikutnya
+        nextPage() {
+            if (this.currentPageRules < this.totalPagesRules) {
+                this.currentPageRules++;
+            }
+        },
+    },
+};
+</script>
+
 <template>
-    <div class="container">
-        <!-- Sidebar Atas (Judul) -->
-        <div class="sidebar-top">
-            <h2>Data Science</h2>
-        </div>
+    <div class="main-container">
+        <div class="login-wrapper">
+            <div id="main-content" class="main-content">
+                <!-- Gambar -->
+                <div class="image-wrapper">
+                    <img src="./pizza_bg6.png" alt="Pizza Background" class="responsive-img">
+                </div>
 
-        <!-- Sidebar Bawah (Menu) -->
-        <div class="sidebar-bottom">
-            <ul>
-                <li><a href="#main-content">Tabel</a></li>
-                <li><a href="#grafik">Grafik</a></li>
-            </ul>
-        </div>
-
-        <!-- Main Content -->
-        <div id="main-content" class="main-content">
-
-            <!-- Tabel Data - Card Wrapper -->
-            <div id="tabel" class="section card">
-                <h3>Tabel Data Restoran</h3>
-                <table v-if="pokedex && pokedex.length">
-                    <tbody>
-                        <tr>
-                            <!-- Kolom untuk Nomor Urut -->
-                            <th>No.</th>
-                            <th v-for="(value, key) in pokedex[0]" :key="key">{{ key }}</th>
-                        </tr>
-                        <tr v-for="(row, index) in pokedex" :key="index">
-                            <!-- Nomor Urut -->
-                            <td>{{ index + 1 }}</td>
-                            <td v-for="(value, key) in row" :key="key">{{ value }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Visualisasi Grafik - Card Wrapper -->
-            <div id="grafik" class="section card">
-                <h3>{{ grafik }}</h3>
-
-                <!-- Layout Flexbox untuk Menampilkan Dua Grafik -->
-                <div class="charts-container">
-                    <!-- Menampilkan Grafik Pie Chart 1 -->
-                    <div v-if="chart_data" class="chart">
-                        <img :src="'data:image/png;base64,' + chart_data" alt="Pie Chart 1"
-                            style="width: 100%; height: auto; display: block; margin: 0 auto; margin-bottom: 50px; margin-top: 10px; border: 1px solid #000000;">
+                <!-- Tabel Data - Card Wrapper -->
+                <div id="tabel" class="section card">
+                    <h3>Tabel Data Pizza</h3>
+                    <div v-if="!pokedex || pokedex.length === 0">
+                        <p>No items available</p>
                     </div>
-                    <div v-else>
-                        <p>No chart 1 available</p>
-                    </div>
-
-                    <!-- Menampilkan Grafik Pie Chart 2 -->
-                    <div v-if="chart_data" class="chart">
-                        <img :src="'data:image/png;base64,' + chart_data" alt="Pie Chart 2"
-                            style="width: 100%; height: auto; display: block; margin: 0 auto; margin-bottom: 50px; margin-top: 10px; border: 1px solid #000000;">
-                    </div>
-                    <div v-else>
-                        <p>No chart 2 available</p>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th v-for="(value, key) in pokedex[0]" :key="key">{{ key }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(row, index) in pokedex" :key="index">
+                                    <td v-for="(value, key) in row" :key="key">{{ value || '-' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
+                <!-- Wrapper untuk Grafik dan Asosiasi -->
+                <div class="flex-container">
+                    <!-- Grafik -->
+                    <div id="grafik" class="section card flex-item">
+                        <h3>{{ grafik }}</h3>
+                        <div class="chart-wrapper">
+                            <img :src="'data:image/png;base64,' + chart_data" alt="Pie Chart" class="chart-img" />
+                        </div>
+                    </div>
+
+
+                    <div id="asosiasi" class="section card flex-item">
+                        <h3>Aturan Asosiasi</h3>
+                        <!-- Input untuk menyaring aturan asosiasi -->
+                        <div class="input-association">
+                            <div class="form-group">
+                                <input type="text" id="itemInput" v-model="searchItem" @input="searchAssociation"
+                                    placeholder="Masukkan nama item..." class="form-input" />
+                                <button @click="searchAssociation" class="form-button">Cari</button>
+                            </div>
+                        </div>
+
+                        <!-- Menampilkan aturan asosiasi dalam tabel -->
+                        <div v-if="paginatedRules && paginatedRules.length">
+                            <table class="association-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Aturan Asosiasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(rule, index) in paginatedRules" :key="index">
+                                        <td>{{ (currentPageRules - 1) * rulesPerPage + index + 1
+                                            }}</td>
+                                        <td>{{ rule }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-else>
+                            <p>No association rules available for the entered item.</p>
+                        </div>
+
+                        <!-- Navigasi Halaman -->
+                        <div class="pagination-controls">
+                            <button @click="prevPage" :disabled="currentPageRules === 1">Previous</button>
+                            <span>Page {{ currentPageRules }} of {{ totalPagesRules }}</span>
+                            <button @click="nextPage" :disabled="currentPageRules === totalPagesRules">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Section -->
+                <footer class="footer">
+                    <a>@develop in Desember 2024</a>
+                </footer>
             </div>
         </div>
     </div>
 </template>
 
-<script>
-export default {
-    props: {
-        grafik: String,          // Judul grafik
-        title: String,           // Judul halaman
-        description: String,     // Deskripsi halaman
-        deskripsi: String,       // Deskripsi grafik
-        pokedex: Array,          // Data untuk tabel
-        chart_data: String,      // Data base64 untuk grafik pertama
-        chart_data_2: String,    // Data base64 untuk grafik kedua
-        currentPage: Number,     // Halaman saat ini
-        totalPages: Number       // Total halaman untuk paginasi
-    }
-};
-</script>
-
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
-
-.container {
-    display: flex;
-}
-
-.sidebar-top {
-    width: 200px;
-    background-color: #17818f;
-    color: white;
-    padding: 20px;
-    height: 5vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    font-family: 'Quicksand', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.sidebar-top h2 {
-    margin: 0;
-    font-size: 1.5em;
-}
-
-.sidebar-bottom {
-    width: 200px;
-    height: 83vh;
-    background-color: #17818f;
-    color: white;
-    padding: 20px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    font-family: 'Quicksand', sans-serif;
-}
-
-.sidebar-bottom ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar-bottom ul li {
-    margin: 15px 0;
-}
-
-.sidebar-bottom ul li a {
-    color: white;
-    text-decoration: none;
-    font-size: 1.2em;
-}
-
-.sidebar-bottom ul li a:hover {
-    text-decoration: underline;
-}
-
-.main-content {
-    margin-left: 260px;
-    width: calc(100% - 250px);
-    padding: 20px;
-    margin-bottom: 80px;
-}
-
-h1 {
-    text-align: center;
-    font-size: 2em;
-    font-family: 'Quicksand', sans-serif;
-    margin-bottom: -10px;
-}
-
-p {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.2em;
-    color: #000000;
-    font-family: 'Quicksand', sans-serif;
-}
-
-table {
+/* Tabel untuk aturan asosiasi */
+.association-table {
     width: 100%;
-    border-collapse: separate;
-    margin: 0 auto;
-    font-family: 'Quicksand', sans-serif;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
 }
 
-th {
-    border: 1px solid #000000;
-    overflow: hidden;
-    font-size: 8pt;
-}
-
-td {
+.association-table th,
+.association-table td {
+    border: 1px solid #dddddd;
     text-align: center;
-    border: 1px solid #000000;
-    overflow: hidden;
     padding: 10px;
-    font-size: 8pt;
+    word-wrap: break-word;
 }
 
-th {
-    background-color: #17818f;
-    text-align: center;
+.association-table th {
+    background-color: rgb(249, 207, 177);
     color: white;
+    font-weight: bold;
 }
 
-tr:nth-child(even) {
+.association-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-tbody {
-    display: block;
-    max-height: 560px;
-    overflow-y: auto;
-    border: 1px solid #000000;
+.association-table tr:hover {
+    background-color: #f1f1f1;
 }
 
-thead tr {
-    display: table;
-    width: 100%;
-    height: 50px;
+.association-table th:nth-child(1),
+.association-table td:nth-child(1) {
+    width: 25%;
 }
 
-tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-    height: 50px;
-}
-
-/* Layout untuk dua grafik */
-.charts-container {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 25px;
-}
-
-.chart {
-    width: 45%;
-}
-
-/* Styling untuk section (Tabel dan Grafik) agar ada jarak antar bagian */
-.section {
-    margin-top: px;
-}
-
-/* Styling untuk Card */
-.card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
-    padding: 20px;
-    margin-bottom: 20px;
-    margin-top: 10px;
-}
-
-.card h3 {
-    text-align: center;
-    font-size: 1.5em;
-    margin-bottom: 5px;
-    font-family: 'Quicksand', sans-serif;
-}
-
-/* Sidebar Atas (Judul) */
-.sidebar-top {
-    width: 200px;
-    background-color: #17818f;
-    color: white;
-    padding: 20px;
-    height: 5vh;
-    position: fixed;
-    margin-left: 10px;
-    margin-top: 20px;
-    top: 0;
-    left: 0;
-    font-family: 'Quicksand', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
-    /* Shadow effect */
-}
-
-.sidebar-top h2 {
-    margin: 0;
-    font-size: 1.5em;
-}
-
-/* Sidebar Bawah (Menu) */
-.sidebar-bottom {
-    width: 200px;
-    height: 77vh;
-    background-color: #17818f;
-    color: white;
-    padding: 20px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    margin-left: 10px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    font-family: 'Quicksand', sans-serif;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
-    /* Shadow effect */
-}
-
-.sidebar-bottom ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar-bottom ul li {
-    margin: 15px 0;
-}
-
-.sidebar-bottom ul li a {
-    color: white;
-    text-decoration: none;
-    font-size: 1.2em;
-}
-
-.sidebar-bottom ul li a:hover {
-    text-decoration: underline;
+.association-table th:nth-child(2),
+.association-table td:nth-child(2) {
+    width: 75%;
 }
 </style>
