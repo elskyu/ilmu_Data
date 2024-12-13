@@ -36,9 +36,8 @@ body {
     background-color: rgb(249, 207, 177);
     bottom: 0;
     width: 99%;
-    font-size: 14pt;
+    font-size: 11pt;
     color: #3d3d3d;
-    font-weight: bold;
     font-family: 'Quicksand', sans-serif;
 }
 
@@ -265,7 +264,7 @@ li {
     margin-bottom: 15px;
     margin-top: 15px;
     /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); */
-    border-radius: 8px;
+    border-radius: 5px;
 }
 
 /* Flex container untuk Grafik dan Asosiasi */
@@ -414,3 +413,35 @@ li {
     cursor: not-allowed;
 }
 
+/* Tabel untuk aturan asosiasi */
+.association-table {
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+    width: 100%;
+    height: 350px;
+}
+
+.association-table th {
+    background-color: rgb(249, 207, 177);
+    color: white;
+    font-weight: bold;
+}
+
+.association-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.association-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.association-table th:nth-child(1),
+.association-table td:nth-child(1) {
+    width: 25%;
+}
+
+.association-table th:nth-child(2),
+.association-table td:nth-child(2) {
+    width: 75%;
+}

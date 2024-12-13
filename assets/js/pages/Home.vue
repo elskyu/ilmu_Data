@@ -1,6 +1,5 @@
 <script>
 import './style.css';
-
 export default {
     props: {
         grafik: String,
@@ -12,7 +11,9 @@ export default {
         chart_data_2: String,
         currentPage: Number,
         totalPages: Number,
-        association_rules: Array, // Semua aturan asosiasi
+        association_rules: Array,
+        k1: Array,
+        k2: Array,
     },
     data() {
         return {
@@ -20,22 +21,38 @@ export default {
             filteredRules: [], // Menyimpan aturan asosiasi yang difilter
             currentPageRules: 1, // Halaman saat ini untuk asosiasi
             rulesPerPage: 5, // Batas jumlah aturan per halaman
+            currentPageK1: 1,
+            currentPageK2: 1,
+            itemsPerPage: 5,
         };
     },
     computed: {
-        // Aturan yang ditampilkan berdasarkan halaman saat ini
         paginatedRules() {
             const startIndex = (this.currentPageRules - 1) * this.rulesPerPage;
             const endIndex = startIndex + this.rulesPerPage;
             return this.filteredRules.slice(startIndex, endIndex);
         },
-        // Total halaman berdasarkan jumlah aturan
         totalPagesRules() {
             return Math.ceil(this.filteredRules.length / this.rulesPerPage);
         },
+        paginatedK1() {
+            const startIndex = (this.currentPageK1 - 1) * this.itemsPerPage;
+            const endIndex = startIndex + this.itemsPerPage;
+            return this.k1.slice(startIndex, endIndex);
+        },
+        totalPagesK1() {
+            return Math.ceil(this.k1.length / this.itemsPerPage);
+        },
+        paginatedK2() {
+            const startIndex = (this.currentPageK2 - 1) * this.itemsPerPage;
+            const endIndex = startIndex + this.itemsPerPage;
+            return this.k2.slice(startIndex, endIndex);
+        },
+        totalPagesK2() {
+            return Math.ceil(this.k2.length / this.itemsPerPage);
+        },
     },
     methods: {
-        // Menyaring asosiasi berdasarkan input pengguna
         searchAssociation() {
             if (this.searchItem.trim() !== '') {
                 this.filteredRules = this.association_rules.filter(rule =>
@@ -44,18 +61,36 @@ export default {
             } else {
                 this.filteredRules = [];
             }
-            this.currentPageRules = 1; // Reset ke halaman pertama
+            this.currentPageRules = 1;
         },
-        // Navigasi ke halaman sebelumnya
         prevPage() {
             if (this.currentPageRules > 1) {
                 this.currentPageRules--;
             }
         },
-        // Navigasi ke halaman berikutnya
         nextPage() {
             if (this.currentPageRules < this.totalPagesRules) {
                 this.currentPageRules++;
+            }
+        },
+        prevPageK1() {
+            if (this.currentPageK1 > 1) {
+                this.currentPageK1--;
+            }
+        },
+        nextPageK1() {
+            if (this.currentPageK1 < this.totalPagesK1) {
+                this.currentPageK1++;
+            }
+        },
+        prevPageK2() {
+            if (this.currentPageK2 > 1) {
+                this.currentPageK2--;
+            }
+        },
+        nextPageK2() {
+            if (this.currentPageK2 < this.totalPagesK2) {
+                this.currentPageK2++;
             }
         },
     },
@@ -68,7 +103,7 @@ export default {
             <div id="main-content" class="main-content">
                 <!-- Gambar -->
                 <div class="image-wrapper">
-                    <img src="./pizza_bg6.png" alt="Pizza Background" class="responsive-img">
+                    <img src="./pizza_bg6.png" alt="Pizza Background" class="responsive-img" loading="lazy">
                 </div>
 
                 <!-- Tabel Data - Card Wrapper -->
@@ -120,14 +155,11 @@ export default {
                             <table class="association-table">
                                 <thead>
                                     <tr>
-                                        <th>No</th>
                                         <th>Aturan Asosiasi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(rule, index) in paginatedRules" :key="index">
-                                        <td>{{ (currentPageRules - 1) * rulesPerPage + index + 1
-                                            }}</td>
                                         <td>{{ rule }}</td>
                                     </tr>
                                 </tbody>
@@ -146,6 +178,68 @@ export default {
                     </div>
                 </div>
 
+                <!-- Card Frequent Itemsets K1 -->
+                <div id="frequent-k1" class="section card">
+                    <h3>Frekuensi K1</h3>
+                    <div v-if="paginatedK1 && paginatedK1.length">
+                        <table class="association-table">
+                            <thead>
+                                <tr>
+                                    <th>Frequent Item</th>
+                                    <th>Frekuensi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in paginatedK1" :key="index">
+                                    <td>{{ item.item }}</td>
+                                    <td>{{ item.support }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-else>
+                        <p>No frequent itemsets K1 available.</p>
+                    </div>
+
+                    <!-- Navigasi Halaman -->
+                    <div class="pagination-controls">
+                        <button @click="prevPageK1" :disabled="currentPageK1 === 1">Previous</button>
+                        <span>Page {{ currentPageK1 }} of {{ totalPagesK1 }}</span>
+                        <button @click="nextPageK1" :disabled="currentPageK1 === totalPagesK1">Next</button>
+                    </div>
+                </div>
+
+                <!-- Card Frequent Itemsets K2 -->
+                <div id="frequent-k2" class="section card">
+                    <h3>Frekuensi K2</h3>
+                    <div v-if="paginatedK2 && paginatedK2.length">
+                        <table class="association-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Pair</th>
+                                    <th>Frekuensi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in paginatedK2" :key="index">
+                                    <td>{{ item.item_pair }}</td>
+                                    <td>{{ item.support }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-else>
+                        <p>No frequent itemsets K2 available.</p>
+                    </div>
+
+                    <!-- Navigasi Halaman -->
+                    <div class="pagination-controls">
+                        <button @click="prevPageK2" :disabled="currentPageK2 === 1">Previous</button>
+                        <span>Page {{ currentPageK2 }} of {{ totalPagesK2 }}</span>
+                        <button @click="nextPageK2" :disabled="currentPageK2 === totalPagesK2">Next</button>
+                    </div>
+                </div>
+
                 <!-- Footer Section -->
                 <footer class="footer">
                     <a>@develop in Desember 2024</a>
@@ -155,44 +249,4 @@ export default {
     </div>
 </template>
 
-<style scoped>
-/* Tabel untuk aturan asosiasi */
-.association-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-.association-table th,
-.association-table td {
-    border: 1px solid #dddddd;
-    text-align: center;
-    padding: 10px;
-    word-wrap: break-word;
-}
-
-.association-table th {
-    background-color: rgb(249, 207, 177);
-    color: white;
-    font-weight: bold;
-}
-
-.association-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.association-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-.association-table th:nth-child(1),
-.association-table td:nth-child(1) {
-    width: 25%;
-}
-
-.association-table th:nth-child(2),
-.association-table td:nth-child(2) {
-    width: 75%;
-}
-</style>
+<style scoped></style>
