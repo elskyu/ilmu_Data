@@ -1,7 +1,8 @@
-import {resolve} from 'path';
-import vue from '@vitejs/plugin-vue'
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+import vue from '@vitejs/plugin-vue';
 
-module.exports = {
+export default {
   plugins: [
     vue()
   ],
