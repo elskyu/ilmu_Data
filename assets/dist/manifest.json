@@ -1,0 +1,32 @@
+{
+  "js/pages/pizza_bg6.png": {
+    "file": "pizza_bg6.99c46b58.png",
+    "src": "js/pages/pizza_bg6.png"
+  },
+  "js/app.js": {
+    "file": "main.dab4c292.js",
+    "src": "js/app.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "js/pages/Home.vue"
+    ]
+  },
+  "js/pages/Home.vue": {
+    "file": "Home-88bb42e9.js",
+    "src": "js/pages/Home.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "js/app.js"
+    ],
+    "css": [
+      "Home.70ed74c9.css"
+    ],
+    "assets": [
+      "pizza_bg6.99c46b58.png"
+    ]
+  },
+  "js/pages/Home.css": {
+    "file": "Home.70ed74c9.css",
+    "src": "js/pages/Home.css"
+  }
+}
